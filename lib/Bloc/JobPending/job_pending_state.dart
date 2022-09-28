@@ -8,10 +8,9 @@ class JobPendingInitial extends JobPendingState {}
 class JobPendingWaiting extends JobPendingState {}
 
 class JobPendingSuccess extends JobPendingState {
-  late List<DetailModel> detailModel;
   late List<DrcModel> drcModelData;
 
-  JobPendingSuccess({required this.detailModel, required this.drcModelData});
+  JobPendingSuccess({required this.drcModelData});
 }
 
 class JobPendingError extends JobPendingState {

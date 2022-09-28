@@ -4,3 +4,9 @@ part of 'job_pending_bloc.dart';
 abstract class JobPendingEvent {}
 
 class FetchData extends JobPendingEvent {}
+
+class FilterData extends JobPendingEvent {
+  late String word;
+
+  FilterData({required this.word});
+}

@@ -14,55 +14,35 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController textEditingController = TextEditingController();
   late JobPendingBloc _jobPendingBloc;
-
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   List<DrcModel> drcModel = [];
-
-  List<DrcModel> drcModel1() {
-    List<DrcModel> _drcModel = [];
-    _drcModel.add(DrcModel(
-      Scalenumber: '70',
-      Datetime: '15/กย./2565',
-      Name: 'พิมพ์ภาวรรณ',
-      Carlicense: 'บธ 5790',
-      Drc: 40,
-      BatchNo: '650001',
-      Material: 'RM1B00(ยางก้อนถ้วย)',
-      TotalWeight: '10,220.00',
-      CarWeight: '5,605.00',
-      ItemWeight: '4,615.00',
-      beginWeight: '20.15',
-      endWeight: '19.07',
-    ));
-    _drcModel.add(DrcModel(
-        Scalenumber: '40',
-        Datetime: '15/กย./2565',
-        Name: 'พิมพ์ภาวรรณ',
-        Carlicense: 'บธ 5790',
-        Drc: 70));
-    _drcModel.add(DrcModel(
-        Scalenumber: '6000',
-        Datetime: '15/กย./2565',
-        Name: '123123213',
-        Carlicense: 'บธ 5790',
-        Drc: 60));
-    return _drcModel;
-  }
 
   @override
   void initState() {
-    drcModel = drcModel1();
     _jobPendingBloc = BlocProvider.of<JobPendingBloc>(context);
     _jobPendingBloc.add(FetchData());
     super.initState();
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
 
   void _refreshData() {
     setState(() {
       _jobPendingBloc = BlocProvider.of<JobPendingBloc>(context);
       _jobPendingBloc.add(FetchData());
+      textEditingController.clear();
+    });
+  }
+
+  void _filterData(String word) {
+    setState(() {
+      _jobPendingBloc = BlocProvider.of<JobPendingBloc>(context);
+      _jobPendingBloc.add(FilterData(word: word));
     });
   }
 
@@ -77,11 +57,17 @@ class _LoginScreenState extends State<LoginScreen> {
               Icons.search,
               color: Colors.white,
             ),
+            suffixIcon: IconButton(
+              onPressed: textEditingController.clear,
+              icon: const Icon(Icons.clear),
+              color: Colors.white,
+            ),
             labelText: 'Search...',
             labelStyle: TextStyle(
                 color: myFocusNode.hasFocus ? Colors.white : Colors.white),
           ),
           controller: textEditingController,
+          onChanged: (value) => _filterData(value),
         ),
       ),
       body: RefreshIndicator(
@@ -123,104 +109,119 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: <Widget>[
                     Expanded(
                       child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 100, top: 10),
                         itemCount: state.drcModelData.length,
                         itemBuilder: (context, index) {
                           return InkWell(
+                            autofocus: true,
                             onTap: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                return const Detail();
+                                return Detail(
+                                  orderNo1:
+                                      state.drcModelData[index].Scalenumber!,
+                                  jobPendingBloc: state.drcModelData[index],
+                                );
                               }));
                             },
-                            child: Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10.0),
-                                    bottomLeft: Radius.circular(10.0),
-                                    topRight: Radius.circular(10.0),
-                                    bottomRight: Radius.circular(10.0),
-                                  ),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topRight,
-                                    end: Alignment.bottomLeft,
-                                    colors: [
-                                      Colors.lightBlueAccent,
-                                      Colors.blueAccent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10.0),
+                                      bottomLeft: Radius.circular(10.0),
+                                      topRight: Radius.circular(10.0),
+                                      bottomRight: Radius.circular(10.0),
+                                    ),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      colors: [
+                                        Colors.lightBlueAccent,
+                                        Colors.blueAccent,
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blueGrey,
+                                        spreadRadius: 1,
+                                        blurRadius: 4,
+                                        offset: Offset(
+                                            0, 2), // changes position of shadow
+                                      ),
                                     ],
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blueGrey,
-                                      spreadRadius: 1,
-                                      blurRadius: 4,
-                                      offset: Offset(
-                                          0, 2), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.all(4),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Column(
-                                        children: [
-                                          const Text(
-                                            'DRC(%)',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            drcModel[index].Drc.toString(),
-                                            style: const TextStyle(
-                                                fontSize: 24,
-                                                color: Colors.white),
-                                          ),
-                                        ],
+                                  padding: const EdgeInsets.all(4),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          children: [
+                                            const Text(
+                                              'DRC(%)',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              state.drcModelData[index].Drc
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  fontSize: 24,
+                                                  color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'เลขที่ :' +
-                                                drcModel[index].Scalenumber!,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          Text(
-                                            'วันที่ :' +
-                                                drcModel[index].Datetime!,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          Text(
-                                            'ลูกค้า :' + drcModel[index].Name!,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          Text(
-                                            'ทะเบียนรถ :' +
-                                                drcModel[index].Carlicense!,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                          const SizedBox(height: 4),
-                                        ],
+                                      Expanded(
+                                        flex: 3,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'เลขที่ :' +
+                                                  state.drcModelData[index]
+                                                      .Scalenumber!,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              'วันที่ :' +
+                                                  state.drcModelData[index]
+                                                      .Datetime!,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              'ลูกค้า :' +
+                                                  state.drcModelData[index]
+                                                      .Name!,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              'ทะเบียนรถ :' +
+                                                  state.drcModelData[index]
+                                                      .Carlicense!,
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            const SizedBox(height: 4),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -231,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 );
               }
-              return const Text("Not Found");
+              return const Center(child: Text("Not Found"));
             },
           ),
         ),

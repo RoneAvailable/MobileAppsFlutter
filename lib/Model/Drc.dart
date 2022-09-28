@@ -1,9 +1,13 @@
+import 'dart:ffi';
+
 class DrcModel {
   String? Scalenumber;
   String? Datetime;
   String? Name;
   String? Carlicense;
-  int? Drc;
+  String? Drc;
+
+  String? DrcText;
 
   String? BatchNo;
   String? Material;
@@ -14,12 +18,18 @@ class DrcModel {
   String? endWeight;
   String? multiply;
 
+  String? CarType;
+  String? ProductCode;
+  String? ProductName;
+  String? Remark;
+
   DrcModel({
     this.Scalenumber = '',
     this.Datetime = '',
     this.Name = '',
     this.Carlicense = '',
-    this.Drc = 0,
+    this.Drc = '',
+    this.DrcText = '',
     this.BatchNo = '',
     this.Material = '',
     this.TotalWeight = '',
@@ -28,5 +38,26 @@ class DrcModel {
     this.beginWeight = '',
     this.endWeight = '',
     this.multiply = '',
+    this.CarType = '',
+    this.ProductCode = '',
+    this.ProductName = '',
+    this.Remark = '',
   });
+
+  factory DrcModel.fromJson(Map<String, dynamic> json) => DrcModel(
+        Scalenumber: json["scaleNo"] ?? '-',
+        Datetime: json["scaleDate"] ?? '-',
+        Name: json["customer"] ?? '-',
+        BatchNo: json["batchNo"] ?? '-',
+        CarType: json["truckType"] ?? '-',
+        Carlicense: json["licensePlate"] ?? '-',
+        ProductCode: json["pcode"] ?? '-',
+        ProductName: json["pname"] ?? '-',
+        DrcText: json["drcText"] ?? '-',
+        Remark: json["remark"] ?? '-',
+        TotalWeight: json["allWeight"].toString(),
+        CarWeight: json["truckWeight"].toString(),
+        ItemWeight: json["pdWeight"].toString(),
+        Drc: json["drc"].toString(),
+      );
 }
