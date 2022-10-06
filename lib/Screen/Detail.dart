@@ -79,10 +79,6 @@ class _DetailState extends State<Detail> {
             child: CircularProgressIndicator(),
           );
         } else if (state is JobDetailSuccess) {
-          if (kDebugMode) {
-            print(state.detailModel);
-          }
-          // print(state.detailModel[0].DRC);
           return Scaffold(
             appBar: AppBar(
               title: const Text("Detail"),
@@ -400,33 +396,6 @@ class _DetailState extends State<Detail> {
                     ),
                     child: BlocBuilder<JobEndingBloc, JobEndingState>(
                       builder: (context, state) {
-                        if (state is JobEndingWaiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (state is JobEndingSuccess) {
-                          return TextButton(
-                            onPressed: () {
-                              _jobEndingBloc.add(EndingEvent(
-                                Scalenumber: widget.orderNo1.toString(),
-                                dismoney: disMoney.text,
-                                dispercent: disPercent.text,
-                                remark: reMark.text,
-                              ));
-                              Navigator.pushReplacement(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return const loginpage.LoginScreen();
-                              }));
-                            },
-                            child: const Text(
-                              "ปิดรายการ",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            // style: TextButton.styleFrom(
-                            //   backgroundColor: Colors.blueAccent,
-                            // ),
-                          );
-                        }
                         return TextButton(
                           onPressed: () {
                             _jobEndingBloc.add(EndingEvent(
@@ -435,6 +404,7 @@ class _DetailState extends State<Detail> {
                               dispercent: disPercent.text,
                               remark: reMark.text,
                             ));
+                            if (state is JobEndingError) {}
                             Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (context) {
                               return const loginpage.LoginScreen();
@@ -444,9 +414,6 @@ class _DetailState extends State<Detail> {
                             "ปิดรายการ",
                             style: TextStyle(color: Colors.white),
                           ),
-                          // style: TextButton.styleFrom(
-                          //   backgroundColor: Colors.blueAccent,
-                          // ),
                         );
                       },
                     ),
