@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../Model/DetailModel.dart';
-import '../JobPending/job_pending_bloc.dart';
 import '../Services/NetworkServices.dart';
 
 part 'job_detail_event.dart';

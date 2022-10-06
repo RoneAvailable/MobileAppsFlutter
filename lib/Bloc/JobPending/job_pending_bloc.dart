@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../Model/DetailModel.dart';
 import '../../Model/Drc.dart';
 import '../Services/NetworkServices.dart';
 

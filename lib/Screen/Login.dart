@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:testt/Bloc/JobPending/job_pending_bloc.dart';
-import 'package:testt/Screen/Detail.dart';
+import 'package:NERubber/Bloc/JobPending/job_pending_bloc.dart';
+import 'package:NERubber/Screen/Detail.dart';
 import '../Model/Drc.dart';
 
 class LoginScreen extends StatefulWidget {

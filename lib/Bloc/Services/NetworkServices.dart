@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
+import '../../Model/EndingModel.dart';
 import '../../Model/DetailModel.dart';
 import '../../Model/Drc.dart';
 
@@ -57,6 +60,51 @@ class NetworkServices {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
     if (kDebugMode) {
+      print(url);
+    }
+
+    if (response.statusCode == 200) {
+      var jsonResponse =
+          convert.jsonDecode(response.body) as Map<String, dynamic>;
+      List list = jsonResponse['result'];
+      print(list);
+      try {
+        _detailModelData =
+            list.map((json) => DetailModel.fromJson(json)).toList();
+      } catch (ex) {
+        print(ex);
+      }
+    } else {
+      if (kDebugMode) {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+    }
+
+    return _detailModelData;
+  }
+
+  Future<List<DetailModel>> endingModelData(String Scalenumber, String dismoney,
+      String dispercent, String remark) async {
+    List<DetailModel> _detailModelData = [];
+    double _dismoney = dismoney.toString() != "" ? double.parse(dismoney) : 0;
+    double _dispercent =
+        dispercent.toString() != "" ? double.parse(dispercent) : 0;
+    var url = Uri.parse('http://191.20.203.133:2022/api/drc/CloseDocument');
+    var body = jsonEncode({
+      'scaleno': Scalenumber,
+      'dismoney': _dismoney,
+      'dispercent': _dispercent,
+      'remark': remark,
+      'empclosejob': "ซูไฮลี ยิตอซอ",
+    });
+    var response = await http.post(url, body: body, headers: {
+      "Accept": "application/json",
+      "content-type": "application/json"
+    });
+
+    if (kDebugMode) {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
       print(url);
     }
 

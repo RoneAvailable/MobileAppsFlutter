@@ -1,10 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:testt/Model/Drc.dart';
-import 'package:testt/Screen/Login.dart' as loginpage;
+import 'package:NERubber/Bloc/JobEnding/job_ending_bloc.dart';
+import 'package:NERubber/Model/Drc.dart';
+import 'package:NERubber/Screen/Login.dart' as loginpage;
 
 import '../Bloc/JobDetail/job_detail_bloc.dart';
-import '../Bloc/JobPending/job_pending_bloc.dart';
 
 class Detail extends StatefulWidget {
   const Detail({Key? key, required this.orderNo1, required this.jobPendingBloc})
@@ -19,12 +21,17 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   late JobDetailBloc _jobDetailBloc;
-
+  late JobEndingBloc _jobEndingBloc;
+  TextEditingController disMoney = TextEditingController();
+  TextEditingController disPercent = TextEditingController();
+  TextEditingController reMark = TextEditingController();
   @override
   void initState() {
     _jobDetailBloc = BlocProvider.of<JobDetailBloc>(context);
+    _jobEndingBloc = BlocProvider.of<JobEndingBloc>(context);
     _jobDetailBloc
         .add(FetchDataDetail(Scalenumber: widget.orderNo1.toString()));
+
     super.initState();
   }
 
@@ -56,8 +63,15 @@ class _DetailState extends State<Detail> {
   }
 
   @override
+  void dispose() {
+    disMoney.dispose();
+    disPercent.dispose();
+    reMark.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    FocusNode myFocusNode = FocusNode();
     return BlocBuilder<JobDetailBloc, JobDetailState>(
       builder: (context, state) {
         if (state is JobDetailWaiting) {
@@ -65,7 +79,9 @@ class _DetailState extends State<Detail> {
             child: CircularProgressIndicator(),
           );
         } else if (state is JobDetailSuccess) {
-          print(state.detailModel);
+          if (kDebugMode) {
+            print(state.detailModel);
+          }
           // print(state.detailModel[0].DRC);
           return Scaffold(
             appBar: AppBar(
@@ -288,46 +304,73 @@ class _DetailState extends State<Detail> {
                     child: Column(
                       children: [
                         TextField(
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^(\d+)?\.?\d{0,2}'))
+                          ],
                           decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              onPressed: disPercent.clear,
+                              icon: const Icon(Icons.clear),
+                              color: Colors.white,
+                            ),
+                            border: const OutlineInputBorder(),
+                            hintText: "ปรับลด (%)",
+                            hintStyle: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          controller: disPercent,
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        TextField(
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^(\d+)?\.?\d{0,2}'))
+                          ],
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              onPressed: disMoney.clear,
+                              icon: const Icon(Icons.clear),
+                              color: Colors.white,
+                            ),
                             border: const OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
-                            labelText: 'ปรับลด (%)',
-                            labelStyle: TextStyle(
-                                color: myFocusNode.hasFocus
-                                    ? Colors.white
-                                    : Colors.black),
+                            hintText: "หักสิ่งปลอมปน (บาท)",
+                            hintStyle: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey),
                           ),
+                          controller: disMoney,
                         ),
                         const SizedBox(
                           height: 8,
                         ),
                         TextField(
                           decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              onPressed: reMark.clear,
+                              icon: const Icon(Icons.clear),
+                              color: Colors.white,
+                            ),
                             border: const OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
-                            labelText: 'หักสิ่งปลอมปน (บาท)',
-                            labelStyle: TextStyle(
-                                color: myFocusNode.hasFocus
-                                    ? Colors.white
-                                    : Colors.black),
+                            hintText: "หมายเหตุ",
+                            hintStyle: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.grey),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        TextField(
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'หมายเหตุ',
-                            labelStyle: TextStyle(
-                                color: myFocusNode.hasFocus
-                                    ? Colors.white
-                                    : Colors.black),
-                          ),
+                          controller: reMark,
                         ),
                       ],
                     ),
@@ -355,20 +398,57 @@ class _DetailState extends State<Detail> {
                         ),
                       ],
                     ),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) {
-                          return const loginpage.LoginScreen();
-                        }));
+                    child: BlocBuilder<JobEndingBloc, JobEndingState>(
+                      builder: (context, state) {
+                        if (state is JobEndingWaiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (state is JobEndingSuccess) {
+                          return TextButton(
+                            onPressed: () {
+                              _jobEndingBloc.add(EndingEvent(
+                                Scalenumber: widget.orderNo1.toString(),
+                                dismoney: disMoney.text,
+                                dispercent: disPercent.text,
+                                remark: reMark.text,
+                              ));
+                              Navigator.pushReplacement(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return const loginpage.LoginScreen();
+                              }));
+                            },
+                            child: const Text(
+                              "ปิดรายการ",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            // style: TextButton.styleFrom(
+                            //   backgroundColor: Colors.blueAccent,
+                            // ),
+                          );
+                        }
+                        return TextButton(
+                          onPressed: () {
+                            _jobEndingBloc.add(EndingEvent(
+                              Scalenumber: widget.orderNo1.toString(),
+                              dismoney: disMoney.text,
+                              dispercent: disPercent.text,
+                              remark: reMark.text,
+                            ));
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const loginpage.LoginScreen();
+                            }));
+                          },
+                          child: const Text(
+                            "ปิดรายการ",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          // style: TextButton.styleFrom(
+                          //   backgroundColor: Colors.blueAccent,
+                          // ),
+                        );
                       },
-                      child: const Text(
-                        "ปิดรายการ",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      // style: TextButton.styleFrom(
-                      //   backgroundColor: Colors.blueAccent,
-                      // ),
                     ),
                   ),
                 ],
