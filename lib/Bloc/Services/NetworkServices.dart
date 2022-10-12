@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../Model/EndingModel.dart';
 import '../../Model/DetailModel.dart';
 import '../../Model/Drc.dart';
 

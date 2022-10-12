@@ -81,7 +81,7 @@ class _DetailState extends State<Detail> {
         } else if (state is JobDetailSuccess) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text("Detail"),
+              title: const Text("รายละเอียด"),
             ),
             body: Container(
               decoration: const BoxDecoration(
@@ -404,11 +404,24 @@ class _DetailState extends State<Detail> {
                               dispercent: disPercent.text,
                               remark: reMark.text,
                             ));
-                            if (state is JobEndingError) {}
-                            Navigator.pushReplacement(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const loginpage.LoginScreen();
-                            }));
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('ผลลัพธ์'),
+                                content: Text('ปิดรายการเรียบร้อยแล้ว'),
+                                actions: [
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pushReplacement(context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return const loginpage.LoginScreen();
+                                        }));
+                                      },
+                                      child: Text('รับทราบ'))
+                                ],
+                              ),
+                            );
                           },
                           child: const Text(
                             "ปิดรายการ",

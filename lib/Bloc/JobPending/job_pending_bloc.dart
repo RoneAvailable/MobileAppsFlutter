@@ -18,7 +18,6 @@ class JobPendingBloc extends Bloc<JobPendingEvent, JobPendingState> {
     //FetchData
     on<FetchData>((event, emit) async {
       emit(JobPendingWaiting());
-      // await Future.delayed(const Duration(seconds: 3));
       try {
         _modeldrc = await NetworkServices().drcModelData();
         emit(
